@@ -1,0 +1,65 @@
+
+<div id="query_ui" class="contents">
+
+    <div class="logo" style="margin: 1em;">
+        <div style="position:absolute; left:95px; top: 20px;">QUERY TRANSLATOR - SQL TO COUCHBASE N1QL</div>
+        <img src="images/logo.png"></img>
+    </div>
+
+	<span class="block nav float_right configure_view"></span>
+    
+    
+       <div class="row"style="margin-left: 10px; margin-right: 10px; text-align:center;">
+    
+            <div><a ng-click="prev()"class="btn_1" ng-class="{dynamic_disabled: false}">
+                    <span><p style="margin-top: 20px; color: white; font-size:16px;">&larr; PREVIOUS EXAMPLE</p>
+                        <p style="color: white;">{{prevResult.title}}</p></span></a></div>
+            
+            <div><a ng-click="next()"class="btn_1" ng-class="{dynamic_disabled:false}">
+                    <span><p style="margin-top: 20px; color: white; font-size:16px;">NEXT EXAMPLE&rarr; </p>
+                        <p style="color: white;">{{nextResult.title}}</p></span></a></div>
+            
+                    <br><br><br><br><br><br>
+        </div>
+    
+    <div style="margin-left: 10px; margin-right: 10px;">
+        <h4>EXAMPLE {{lastResult.num}} OF 12<br></h4>
+        <h1 style="font-size: 32px; color: #FF5050;">{{lastResult.title}}<br><h1>
+        <p style="font-size: 19px;">{{lastResult.explain}}</p>
+    </div>
+    
+	<div id="query_box" class="query_box"
+		style="margin-left: 0px; margin-right: 0px">
+    
+		<div class="shadow_box">
+			<div class="header_2">
+				<h4 style="float: left; line-height: 34px;">SQL Statement</h4>
+			</div>
+            
+            <ui-codemirror readonly style="position:absolute;left:0px;font-size:20px;"
+				ng-model="lastResult.query" ui-codemirror-opts="queryEditorOptions" query-editor></ui-codemirror>
+        
+		</div>
+        
+        <div class="shadow_box">
+            <div class="header_2">
+                <h4 style="float: left; line-height: 34px;">N1QL Statement</h4>
+            </div>
+            <ui-codemirror readonly style="position:absolute;left:0px;font-size:20px;"
+                ng-model="lastResult.result" ui-codemirror-opts="resultsEditorOptions" query-editor></ui-codemirror>
+            
+        </div>
+        
+        <div class="row">
+        
+            <div style="font-size:14px;float:left;"><br><br>&copy; 2015 Couchbase, inc. All Rights Reserved</div>
+        
+            <div style="font-size:14px;position:relative;right:40px;float:right;"><br><br>To learn more about Couchbase N1QL, visit <a href="http://QN1QL.couchbase.com">N1QL.couchbase.com</a></div>
+        
+        </div>
+
+
+
+	</div>
+</div>
+</body>
