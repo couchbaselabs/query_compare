@@ -1,4 +1,4 @@
-angular.module('QueryService').factory('QueryService',
+﻿angular.module('QueryService').factory('QueryService',
     function ($q) {
 
   var QueryService = {};
@@ -56,28 +56,26 @@ angular.module('QueryService').factory('QueryService',
                'SELECT o.user_id, u.name, u.address, o.purchase_dt, i.item_id, i.desc\nON KEYS o.cust_id\nFROM orders o JOIN items i\nON KEYS o._item_id', '7', 'Get the customer id, name, address, purchase date, and item id, and item descriptions for all orders','JOINING KEY SPACES'),*/
 
      new Query('EXPLAIN\nSELECT *\nFROM   customer\nWHERE  firstName LIKE "Heath%"',
-               'EXPLAIN\nSELECT *\nFROM   customers\nWHERE  firstName LIKE "Heath%"',
-               '7', 'Get the explain plan for the query getting all customers whose name begins with "John"','QUERY PLAN'),
+               'EXPLAIN\nSELECT *\nFROM   customer\nWHERE  firstName LIKE "Heath%"',
+               '7', 'Get the explain plan for the query getting all customers whose name begins with "Heath"','QUERY PLAN'),
 
-	new Query('SELECT l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, count(*) as count_order\nFROM lineitem \nWHERE l_shipdate <= "1998-12-01" \nGROUP BY l_returnflag, l_linestatus \nORDER BY l_returnflag, l_linestatus',
+	new Query('SELECT     c.phoneNumber,\n           (min(p.purchasedAt)),\n           (max(p.purchasedAt))\nFROM       purchases p\nINNER JOIN customer c = p.customerId\nGROUP BY   c.phoneNumber',
+              	  'SELECT     c.phoneNumber,\n           MILLIS_TO_STR(min(MILLIS(p.purchasedAt))),\n           MILLIS_TO_STR(max(MILLIS(p.purchasedAt)))\nFROM       purchases p INNER JOIN customer c ON KEYS p.customerId\nGROUP BY   c.phoneNumber',
               
-              'select c.phoneNumber, MILLIS_TO_STR(min(MILLIS(p.purchasedAt))), MILLIS_TO_STR(max(MILLIS(p.purchasedAt)))from purchases p inner join customer c on keys p.customerId group by c.phoneNumber',
-              
-            '8', 'Get the customer key, balance, name, address, phone, country, and total amount purchases per customer between October 1st 1993 and October 1st 1994','QUERY WITH GROUPING AND SORTING'),
+            '8', 'Get the customer phone number and ID between all the orders','QUERY WITH GROUPING AND SORTING'),
 
-	new Query('SELECT LastName, FirstName \nFROM \n( SELECT BusinessEntityID, LastName, FirstName \nFROM Employee WHERE State = "NY" ) AS EmployeeDerivedTable \nWHERE LastName = "Smith" \nORDER BY FirstName',
-		  'SELECT LastName, FirstName \nFROM \n( SELECT BusinessEntityID, LastName, FirstName \nFROM Employee WHERE State = "NY" ) AS EmployeeDerivedTable \nWHERE LastName = "Smith" \nORDER BY FirstName', '9', '','SUBQUERIES'),
+	new Query('SELECT lastName, firstName \nFROM \n( SELECT phoneNumber, lastName, firstName \nFROM customer WHERE State = "AE" ) AS EmployeeDerivedTable \nWHERE LastName = "Nadar" \nORDER BY firstName',
+		  'SELECT lastName, firstName \nFROM \n( SELECT phoneNumber, lastName, firstName \nFROM customer WHERE State = "AE" ) AS EmployeeDerivedTable \nWHERE LastName = "Nadar" \nORDER BY firstName', '9', '','SUBQUERIES'),
 
 	new Query('SELECT DISTINCT e.LastName, e.FirstName, e.BusinessEntityID, sp.Bonus \nFROM Employee AS e \nJOIN SalesPerson AS sp ON e.BusinessEntityID = sp.BusinessEntityID \nWHERE e.Bonus >= \n( SELECT average(sp2.Bonus) \nFROM SalesPerson sp2 \nJOIN Employee AS e2 ON \ne2.BusinessEntityID = sp2.BusinessEntityID \nWHERE e.DepartmentID = e2.DepartmentID )',
-              'SELECT DISTINCT e.LastName, e.FirstName, e.BusinessEntityID, sp.Bonus \nFROM Employee AS e \nJOIN SalesPerson AS sp ON PRIMARY KEYS e.BusinessEntityID \nWHERE e.Bonus >=  \n( SELECT avg(sp2.Bonus) \nFROM Employee AS e2 \nJOIN SalesPerson sp2 ON PRIMARY KEYS \ne2.BusinessEntityID \nWHERE e.DepartmentID = e2.DepartmentID )', '10', '','CORRELATED SUBQUERIES WITH JOIN'),
+                  'SELECT DISTINCT e.LastName, e.FirstName, e.BusinessEntityID, sp.Bonus \nFROM Employee AS e \nJOIN SalesPerson AS sp ON PRIMARY KEYS e.BusinessEntityID \nWHERE e.Bonus >=  \n( SELECT avg(sp2.Bonus) \nFROM Employee AS e2 \nJOIN SalesPerson sp2 ON PRIMARY KEYS \ne2.BusinessEntityID \nWHERE e.DepartmentID = e2.DepartmentID )', '10', '','CORRELATED SUBQUERIES WITH JOIN'),
 
-	new Query('SELECT * FROM Employee e \nWHERE e.BusinessEntityID IN \n( SELECT BusinessEntityID FROM SalesPerson WHERE Ranking >= 5.0 \nUNION ALL \nSELECT BusinessEntityID FROM CustomerReview WHERE Score >= 8.0 )',
-              'select * from purchases p where p.customerId in (select * from customer c where c.state = "NJ" UNION ALL select * from customer c where MILLIS(c.dateAdded) > STR_TO_MILLIS("2013-05-06T15:52:14Z"))',
+	new Query('SELECT * \nFROM   purchases p\n WHERE  p.customerId IN(\n       SELECT *\n       FROM   customer c\n       WHERE c.state = "NJ"\n       UNION ALL\n       SELECT *\n       FROM   customer c\n       WHERE  (c.dateAdded) > ("5/6/2013 15:52:14 AM ))',
+                  'SELECT * \nFROM   purchases p\n WHERE  p.customerId IN(\n       SELECT *\n       FROM   customer c\n       WHERE c.state = "NJ"\n       UNION ALL\n       SELECT *\n       FROM   customer c\n       WHERE  MILLIS(c.dateAdded) > STR_TO_MILLIS("2013-05-06T15:52:14Z"))',
               '11', '','QUERY WITH UNION'),
 
-	new Query('SELECT c_custkey, c_name, sum(l_extendedprice * (1 - l_discount)) as revenue, c_acctbal, n_name, c_address, c_phone, c_comment \nFROM customer, orders, lineitem, nation \nWHERE \nc_custkey = o_custkey AND l_orderkey = o_orderkey AND o_orderdate >= date "1993-10-01" AND o_orderdate < date "1994-10-01" AND l_returnflag = "R" AND c_nationkey = n_nationkey \nGROUP BY c_custkey, c_name, c_acctbal, c_phone, n_name, c_address, c_comment \nORDER BY revenue desc \nLIMIT 20 OFFSET 100 ',
-              
-              'select c.customerId, c.phone, count(p.purchaseId) as totalpurchases FROM purchases p INNER JOIN customer c  on keys p.customerId WHERE  MILLIS(p.purchasedAt) between MILLIS("2014-01-01T15:52:14Z") and MILLIS("2014-12-31T15:52:14Z") GROUP BY c.customerId, c.phone ORDER BY COUNT(p.purchaseId) DESC;',
+	new Query('SELECT     c.customerId,\n           c.phone,\n           COUNT(p.purchaseId) AS totalpurchases\nFROM       purchases p\nINNER JOIN customer c  = p.customerId\nWHERE      (p.purchasedAt) > ("1/1/2014 15:52:14 AM")\nAND        ("12/31/2014 15:52:14 AM")\nGROUP BY   c.customerId,           c.phone\nORDER BY    COUNT(p.purchaseId) DESC',
+                  'SELECT     c.customerId,\n           c.phone,\n           COUNT(p.purchaseId) AS totalpurchases\nFROM       purchases p\nINNER JOIN customer c  ON KEYS p.customerId\nWHERE      MILLIS(p.purchasedAt) BETWEEN MILLIS("2014-01-01T15:52:14Z")\n AND        MILLIS("2014-12-31T15:52:14Z"\nGROUP BY   c.customerId,          c.phone ORDER BY COUNT(p.purchaseId)\nDESC',
               '12', '','QUERY FOR PAGENATION'),
 
      ];
